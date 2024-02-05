@@ -6,13 +6,15 @@ import { DefinitionType } from "./Type/DefinitionType";
 import { ReferenceType } from "./Type/ReferenceType";
 import { hasJsDocTag } from "./Utils/hasJsDocTag";
 import { symbolAtNode } from "./Utils/symbolAtNode";
+import { DefinitionNameMapper } from "./Utils/DefinitionNameMapper";
 
 export class ExposeNodeParser implements SubNodeParser {
     public constructor(
         protected typeChecker: ts.TypeChecker,
         protected subNodeParser: SubNodeParser,
         protected expose: "all" | "none" | "export",
-        protected jsDoc: "none" | "extended" | "basic"
+        protected jsDoc: "none" | "extended" | "basic",
+        protected definitionNameMapper?: DefinitionNameMapper
     ) {}
 
     public supportsNode(node: ts.Node): boolean {
@@ -26,7 +28,12 @@ export class ExposeNodeParser implements SubNodeParser {
             return baseType;
         }
 
-        return new DefinitionType(this.getDefinitionName(node, context), baseType);
+        const definitionName = this.getDefinitionName(node, context);
+        const renamedDefinitionName = this.definitionNameMapper
+            ? this.definitionNameMapper(definitionName, node)
+            : definitionName;
+
+        return new DefinitionType(renamedDefinitionName, baseType);
     }
 
     protected isExportNode(node: ts.Node): boolean {

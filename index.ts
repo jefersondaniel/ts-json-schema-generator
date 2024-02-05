@@ -12,6 +12,7 @@ export * from "./src/Config";
 export * from "./src/Utils/allOfDefinition";
 export * from "./src/Utils/assert";
 export * from "./src/Utils/deepMerge";
+export * from "./src/Utils/DefinitionNameMapper";
 export * from "./src/Utils/derefType";
 export * from "./src/Utils/extractLiterals";
 export * from "./src/Utils/formatError";

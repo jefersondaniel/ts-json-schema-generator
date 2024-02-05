@@ -59,17 +59,29 @@ import { VoidTypeNodeParser } from "../src/NodeParser/VoidTypeNodeParser";
 import { SubNodeParser } from "../src/SubNodeParser";
 import { TopRefNodeParser } from "../src/TopRefNodeParser";
 import { SatisfiesNodeParser } from "../src/NodeParser/SatisfiesNodeParser";
+import { DefinitionNameMapper } from "../src/Utils/DefinitionNameMapper";
 
 export type ParserAugmentor = (parser: MutableParser) => void;
 
-export function createParser(program: ts.Program, config: Config, augmentor?: ParserAugmentor): NodeParser {
+export function createParser(
+    program: ts.Program,
+    config: Config,
+    augmentor?: ParserAugmentor,
+    definitionNameMapper?: DefinitionNameMapper
+): NodeParser {
     const typeChecker = program.getTypeChecker();
     const chainNodeParser = new ChainNodeParser(typeChecker, []);
 
     const mergedConfig = { ...DEFAULT_CONFIG, ...config };
 
     function withExpose(nodeParser: SubNodeParser): SubNodeParser {
-        return new ExposeNodeParser(typeChecker, nodeParser, mergedConfig.expose, mergedConfig.jsDoc);
+        return new ExposeNodeParser(
+            typeChecker,
+            nodeParser,
+            mergedConfig.expose,
+            mergedConfig.jsDoc,
+            definitionNameMapper
+        );
     }
     function withTopRef(nodeParser: NodeParser): NodeParser {
         return new TopRefNodeParser(chainNodeParser, mergedConfig.type, mergedConfig.topRef);
